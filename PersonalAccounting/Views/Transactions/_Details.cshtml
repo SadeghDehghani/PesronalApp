@@ -1,0 +1,13 @@
+@model PersonalAccounting.ViewModels.TransactionViewModel
+<div class="table-responsive">
+<table class="table table-bordered">
+    <tr><th>شرح</th><td>@Model.Description</td></tr>
+    <tr><th>نوع</th><td>@(Model.Type == PersonalAccounting.Models.TransactionType.Income ? "درآمد" : "هزینه")</td></tr>
+    <tr><th>مبلغ</th><td class="text-end">@Model.Amount.ToString("N0")</td></tr>
+    <tr><th>تاریخ</th><td>@Model.PersianDate</td></tr>
+    <tr><th>دسته‌بندی</th><td>@Model.CategoryName</td></tr>
+</table>
+</div>
+<div class="text-end">
+    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">بستن</button>
+</div>

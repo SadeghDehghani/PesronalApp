@@ -1,0 +1,20 @@
+@model PersonalAccounting.ViewModels.TransactionViewModel
+<form asp-action="DeleteConfirmed" asp-route-id="@Model.Id" method="post" id="ajaxDeleteForm">
+    <p>آیا از حذف تراکنش «@Model.Description» مطمئن هستید؟</p>
+    <div class="text-end">
+        <button type="submit" class="btn btn-danger">حذف</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+    </div>
+</form>
+@section Scripts{
+<script>
+$(function(){
+    $('#ajaxDeleteForm').on('submit', function(e){
+        e.preventDefault();
+        $.post($(this).attr('action'), $(this).serialize(), function(res){
+            if(res && res.success){ location.reload(); }
+        });
+    });
+});
+</script>
+}

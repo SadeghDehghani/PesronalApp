@@ -1,0 +1,43 @@
+@{
+    ViewData["Title"] = "نمودارها";
+}
+<div class="row g-3">
+    <div class="col-md-4">
+        <label class="form-label">سال</label>
+        <input type="number" id="yearInput" class="form-control" value="@DateTime.Now.Year" />
+    </div>
+    <div class="col-md-2 d-flex align-items-end">
+        <button id="btnLoad" class="btn btn-primary w-100">بارگذاری</button>
+    </div>
+</div>
+
+<div class="mt-4 card">
+    <div class="card-body">
+        <canvas id="barChart" height="120"></canvas>
+    </div>
+</div>
+
+@section Scripts{
+<script>
+$(function(){
+    const ctx = document.getElementById('barChart');
+    let chart;
+
+    function load(){
+        const year = $('#yearInput').val();
+        $.getJSON('@Url.Action("MonthlySummary")', { year: year }, function(data){
+            const labels = ['فروردین','اردیبهشت','خرداد','تیر','مرداد','شهریور','مهر','آبان','آذر','دی','بهمن','اسفند'];
+            const ds = [
+                { label: 'درآمد', data: data.income, backgroundColor: 'rgba(25, 135, 84, .6)' },
+                { label: 'هزینه', data: data.expense, backgroundColor: 'rgba(220, 53, 69, .6)' }
+            ];
+            if(chart){ chart.destroy(); }
+            chart = new Chart(ctx, { type: 'bar', data: { labels: labels, datasets: ds }, options: { responsive: true, scales: { y: { beginAtZero: true } } } });
+        });
+    }
+
+    $('#btnLoad').on('click', load);
+    load();
+});
+</script>
+}
