@@ -1,0 +1,97 @@
+@model PersonalAccounting.ViewModels.TransactionViewModel
+<form asp-action="@(Model.Id.HasValue ? "Edit" : "Create")" asp-route-id="@Model.Id" method="post" id="ajaxForm">
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label"></label>
+        <input asp-for="Description" class="form-control" />
+        <span asp-validation-for="Description" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Type" class="form-label"></label>
+        <select asp-for="Type" class="form-select" asp-items="Html.GetEnumSelectList<PersonalAccounting.Models.TransactionType>()"></select>
+        <span asp-validation-for="Type" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="Amount" class="form-label"></label>
+        <input asp-for="Amount" class="form-control amount-input" />
+        <span asp-validation-for="Amount" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label class="form-label">تاریخ (شمسی)</label>
+        <input type="text" class="form-control persian-date" id="persianDateInput" value="@Model.PersianDate" />
+        <input type="hidden" name="PersianDate" id="PersianDateHidden" value="@Model.PersianDate" />
+        <span asp-validation-for="PersianDate" class="text-danger"></span>
+    </div>
+    <div class="mb-3">
+        <label asp-for="CategoryId" class="form-label"></label>
+        <select asp-for="CategoryId" class="form-select" asp-items="(SelectList)ViewBag.Categories">
+            <option value="">-- انتخاب --</option>
+        </select>
+        <span asp-validation-for="CategoryId" class="text-danger"></span>
+    </div>
+    <div class="text-end">
+        <button type="submit" class="btn btn-primary">ذخیره</button>
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">انصراف</button>
+    </div>
+</form>
+
+@section Scripts{
+<script>
+$(function(){
+    $('.persian-date').persianDatepicker({
+        initialValue: !!$('#persianDateInput').val(),
+        format: 'YYYY/MM/DD',
+        onSelect: function(unix){
+            $('#PersianDateHidden').val($('#persianDateInput').val());
+        }
+    });
+
+    // Ensure hidden is synced on manual changes too
+    $('#persianDateInput').on('change keyup', function(){
+        $('#PersianDateHidden').val($(this).val());
+    });
+
+    // Ajax submit
+    $('#ajaxForm').on('submit', function(e){
+        e.preventDefault();
+        var form = $(this);
+        $.ajax({
+            url: form.attr('action'),
+            type: 'POST',
+            data: form.serialize(),
+            success: function(res){
+                if(res && res.success){
+                    location.reload();
+                } else {
+                    $('#modalContainer .modal-body').html(res);
+                }
+            }
+        });
+    });
+
+    // Amount input formatting and numeric only
+    $('.amount-input').on('input', function(){
+        let v = $(this).val().toString().replace(/[^0-9.]/g,'');
+        // allow only one dot
+        const parts = v.split('.');
+        if(parts.length > 2){
+            v = parts[0] + '.' + parts.slice(1).join('');
+        }
+        // format thousand separators for integer part for display only (not necessary for decimal type but visual)
+        let num = v;
+        const dotIndex = v.indexOf('.');
+        let intPart = dotIndex >= 0 ? v.substring(0, dotIndex) : v;
+        let decPart = dotIndex >= 0 ? v.substring(dotIndex) : '';
+        intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        $(this).val(intPart + decPart);
+        // remove commas before submit via serialize? handled by model binder? safer to remove on submit, but we keep numeric only here
+    });
+
+    // Remove commas before submit
+    $('#ajaxForm').on('submit', function(){
+        const amountInput = $('.amount-input');
+        amountInput.val(amountInput.val().replace(/,/g, ''));
+    });
+});
+</script>
+}

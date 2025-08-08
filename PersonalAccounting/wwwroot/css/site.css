@@ -1,0 +1,4 @@
+body { font-family: Vazirmatn, Tahoma, sans-serif; }
+.table td, .table th { vertical-align: middle; }
+.modal .modal-body { max-height: 70vh; overflow-y: auto; }
+.text-end { direction: ltr; }
